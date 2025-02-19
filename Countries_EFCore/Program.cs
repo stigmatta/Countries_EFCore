@@ -1,3 +1,5 @@
-﻿CountryDbContext countryDb = new CountryDbContext();
+﻿using (CountryDbContext countryDb = new CountryDbContext())
+{
+    countryDb.PrintCountries();
+}
 
-countryDb.GetCountries();

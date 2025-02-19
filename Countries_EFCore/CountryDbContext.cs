@@ -36,7 +36,7 @@ public class CountryDbContext : DbContext
         }
     }
 
-    public void GetCountries()
+    public void PrintCountries()
     {
         var countryList = Countries
             .Select(c => new { c.Name, c.Capital, c.Population, c.Square, ContinentName = c.Continent.Name })
