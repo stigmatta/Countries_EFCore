@@ -1,11 +1,27 @@
-﻿using CountryClass;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Models;
+
 public class CountryDbContext : DbContext
 {
     public DbSet<Continent> Continents { get; set; }
     public DbSet<Country> Countries { get; set; }
 
-    public CountryDbContext()
+    static DbContextOptions<CountryDbContext> _options;
+    static CountryDbContext()
+    {
+        var builder = new ConfigurationBuilder();
+        builder.SetBasePath(Directory.GetCurrentDirectory());
+        builder.AddJsonFile("appsettings.json");
+        var config = builder.Build();
+
+        string connectionString = config.GetConnectionString("DefaultConnection");
+
+        var optionsBuilder = new DbContextOptionsBuilder<CountryDbContext>();
+        _options = optionsBuilder.UseSqlServer(connectionString).Options;
+    }
+    public CountryDbContext() : base(_options)
+
     {
         if (Database.EnsureCreated())
         {
@@ -36,20 +52,9 @@ public class CountryDbContext : DbContext
         }
     }
 
-    public void PrintCountries()
-    {
-        var countryList = Countries
-            .Select(c => new { c.Name, c.Capital, c.Population, c.Square, ContinentName = c.Continent.Name })
-            .ToList();
-
-        foreach (var country in countryList)
-            Console.WriteLine($"Country: {country.Name}, Capital: {country.Capital}, Population: {country.Population}, Area: {country.Square} km², Continent: {country.ContinentName}");
-    }
-
-
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseLazyLoadingProxies().UseSqlServer(@"Server=ANDREYPC;Database=CountryDB;Integrated Security=SSPI;TrustServerCertificate=true");
+        optionsBuilder.UseLazyLoadingProxies();
     }
 }
